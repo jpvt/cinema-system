@@ -1,7 +1,7 @@
 -- change database and user
 \connect datalake datalakeuser
 
--- Cria tabela de filmes
+-- Cria tabela de sessoes
 CREATE TABLE app.sessoes (
     id_sessao serial PRIMARY KEY,
     id_sala serial,
