@@ -15,6 +15,3 @@ ALTER ROLE datalakeuser SET search_path TO public,app;
 
 -- schemas
 CREATE SCHEMA app;
-
--- tables
--- TO DO
