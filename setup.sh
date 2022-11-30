@@ -12,14 +12,14 @@ GREEN='\033[0;32m'
 echo -e ""
 echo -e "⚙️  DEV Environment Setup"
 echo -e ""
-echo -e "➡️  This build takes ~ X minutes on a YMbps connection"
+echo -e "➡️  This build takes ~ 30 seconds on a 150Mbps connection"
 echo -e "➡️  and stores ~ ZGB of data on your disk."
 echo -e ""
 
 # deploying locally
 echo -e ""
 echo -e "⚙️  Starting environment with docker-compose..."
-docker-compose up -d
+docker compose up -d
 if [ "$?" -ne 0 ]; then
     echo -e ""
     echo -e "${RED}Error deploying the environment. Run $0 again.${NC} ❌"
