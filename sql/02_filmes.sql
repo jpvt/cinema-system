@@ -3,7 +3,7 @@
 \connect datalake datalakeuser
 
 -- Cria tabela de filmes
-CREATE TABLE app.label (
+CREATE TABLE app.filmes (
     id_filme serial PRIMARY KEY,
     nome text,
     categoria text,
