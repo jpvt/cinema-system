@@ -14,3 +14,7 @@ CREATE TABLE app.ingressos (
     CONSTRAINT FK_ingressos_sessoes FOREIGN KEY(id_sessao)
         REFERENCES sessoes(id_sessao)
 );
+
+INSERT INTO app.ingressos VALUES (
+    1, 1, 1, 'K7', 'Inteira'
+);

@@ -20,3 +20,8 @@ CREATE TABLE app.sessoes (
         REFERENCES filmes(id_filme)
     
 );
+
+INSERT INTO app.sessoes VALUES (
+    1, 1, 1, 1, '2022/12/01', 'Quinta-feira', '18:00:00', 
+    '20:00:00', 34.90
+);

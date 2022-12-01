@@ -12,3 +12,7 @@ CREATE TABLE app.pedidos (
     CONSTRAINT FK_pedidos_compras FOREIGN KEY(id_compra)
         REFERENCES compras(id_compra)
 );
+
+INSERT INTO app.pedidos VALUES (
+    1, 1, 1
+);

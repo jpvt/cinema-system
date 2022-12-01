@@ -11,3 +11,7 @@ CREATE TABLE app.compras (
     CONSTRAINT FK_compras_clientes FOREIGN KEY(id_cliente)
         REFERENCES clientes(id_cliente)
 );
+
+INSERT INTO app.compras VALUES (
+    1, 1, 'PIX', 81.89
+);

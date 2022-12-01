@@ -7,3 +7,7 @@ CREATE TABLE app.itens (
     descricao text,
     valor_item numeric
 );
+
+INSERT INTO app.itens VALUES (
+    1, 'Bolo Fubica', 45.99
+)
