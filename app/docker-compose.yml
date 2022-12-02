@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+    cinema-app:
+        container_name: cinema-app
+        build:
+            dockerfile: Dockerfile
+        ports:
+            - 8501:8501
