@@ -1,5 +1,22 @@
 version: "3.7"
 services:
+  graphql-engine:
+      image: "hasura/graphql-engine:v2.15.1"
+      ports:
+        - "8080:8080"
+      depends_on:
+        - "datalake"
+      environment:
+        HASURA_GRAPHQL_DATABASE_URL: "postgres://datalakeuser:jpitawawa@datalake:5432/datalake"
+        HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+        HASURA_GRAPHQL_ENABLED_LOG_TYPES: "startup, http-log, webhook-log, websocket-log, query-log"
+        HASURA_GRAPHQL_ADMIN_SECRET: "marceloVaiDar10"
+        HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
+        HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+        HASURA_GRAPHQL_ENABLED_APIS: "metadata, graphql"
+        HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: "/srv/console-assets"
+      restart: "on-failure"
+
   datalake:
     image: "postgres:15.1"
     ports:

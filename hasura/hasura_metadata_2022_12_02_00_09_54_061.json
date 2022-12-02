@@ -1,0 +1,223 @@
+{
+  "resource_version": 3,
+  "metadata": {
+    "version": 3,
+    "sources": [
+      {
+        "name": "default",
+        "kind": "postgres",
+        "tables": [
+          {
+            "table": {
+              "name": "clientes",
+              "schema": "app"
+            },
+            "array_relationships": [
+              {
+                "name": "compras",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "id_cliente",
+                    "table": {
+                      "name": "compras",
+                      "schema": "app"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "compras",
+              "schema": "app"
+            },
+            "object_relationships": [
+              {
+                "name": "cliente",
+                "using": {
+                  "foreign_key_constraint_on": "id_cliente"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "ingressos",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "id_compra",
+                    "table": {
+                      "name": "ingressos",
+                      "schema": "app"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "pedidos",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "id_compra",
+                    "table": {
+                      "name": "pedidos",
+                      "schema": "app"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "filmes",
+              "schema": "app"
+            },
+            "array_relationships": [
+              {
+                "name": "sessoes",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "id_filme",
+                    "table": {
+                      "name": "sessoes",
+                      "schema": "app"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "ingressos",
+              "schema": "app"
+            },
+            "object_relationships": [
+              {
+                "name": "compra",
+                "using": {
+                  "foreign_key_constraint_on": "id_compra"
+                }
+              },
+              {
+                "name": "sesso",
+                "using": {
+                  "foreign_key_constraint_on": "id_sessao"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "itens",
+              "schema": "app"
+            },
+            "array_relationships": [
+              {
+                "name": "pedidos",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "id_item",
+                    "table": {
+                      "name": "pedidos",
+                      "schema": "app"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "pedidos",
+              "schema": "app"
+            },
+            "object_relationships": [
+              {
+                "name": "compra",
+                "using": {
+                  "foreign_key_constraint_on": "id_compra"
+                }
+              },
+              {
+                "name": "iten",
+                "using": {
+                  "foreign_key_constraint_on": "id_item"
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "salas",
+              "schema": "app"
+            },
+            "array_relationships": [
+              {
+                "name": "sessoes",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "id_sala",
+                    "table": {
+                      "name": "sessoes",
+                      "schema": "app"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "table": {
+              "name": "sessoes",
+              "schema": "app"
+            },
+            "object_relationships": [
+              {
+                "name": "filme",
+                "using": {
+                  "foreign_key_constraint_on": "id_filme"
+                }
+              },
+              {
+                "name": "sala",
+                "using": {
+                  "foreign_key_constraint_on": "id_sala"
+                }
+              }
+            ],
+            "array_relationships": [
+              {
+                "name": "ingressos",
+                "using": {
+                  "foreign_key_constraint_on": {
+                    "column": "id_sessao",
+                    "table": {
+                      "name": "ingressos",
+                      "schema": "app"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "configuration": {
+          "connection_info": {
+            "database_url": {
+              "from_env": "HASURA_GRAPHQL_DATABASE_URL"
+            },
+            "isolation_level": "read-committed",
+            "pool_settings": {
+              "connection_lifetime": 600,
+              "idle_timeout": 180,
+              "max_connections": 50,
+              "retries": 1
+            },
+            "use_prepared_statements": true
+          }
+        }
+      }
+    ]
+  }
+}
