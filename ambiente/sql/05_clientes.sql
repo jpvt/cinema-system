@@ -12,3 +12,11 @@ CREATE TABLE app.clientes (
 INSERT INTO app.clientes VALUES (
     1, 'Junior', '999.333.222-92', '83988884444'
 );
+
+INSERT INTO app.clientes VALUES (
+    2, 'Aldemar', '888.333.222-92', '83988884454'
+);
+
+INSERT INTO app.clientes VALUES (
+    3, 'Vladimir', '777.333.222-92', '83988884455'
+);

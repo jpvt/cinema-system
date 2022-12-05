@@ -16,5 +16,36 @@ CREATE TABLE app.ingressos (
 );
 
 INSERT INTO app.ingressos VALUES (
-    1, 1, 1, 'K7', 'Inteira'
+    1, 1, 1, 'A7', 'Adulto'
+);
+
+
+INSERT INTO app.ingressos VALUES (
+    2, 2, 2, 'E2', 'Adulto'
+);
+
+
+INSERT INTO app.ingressos VALUES (
+    3, 2, 2, 'E3', 'Adulto'
+);
+
+
+INSERT INTO app.ingressos VALUES (
+    4, 2, 2, 'E4', 'Adulto'
+);
+
+INSERT INTO app.ingressos VALUES (
+    5, 2, 2, 'E5', 'Adulto'
+);
+
+INSERT INTO app.ingressos VALUES (
+    6, 2, 2, 'E6', 'Adulto'
+);
+
+INSERT INTO app.ingressos VALUES (
+    7, 3, 2, 'D7', 'Flamenguista'
+);
+
+INSERT INTO app.ingressos VALUES (
+    8, 3, 2, 'D8', 'Flamenguista'
 );

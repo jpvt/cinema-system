@@ -15,3 +15,11 @@ CREATE TABLE app.compras (
 INSERT INTO app.compras VALUES (
     1, 1, 'PIX', 81.89
 );
+
+INSERT INTO app.compras VALUES (
+    2, 3, 'CARTÃO', 223.83
+);
+
+INSERT INTO app.compras VALUES (
+    3, 2, 'CARTÃO', 14.29
+);

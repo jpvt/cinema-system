@@ -16,3 +16,15 @@ CREATE TABLE app.pedidos (
 INSERT INTO app.pedidos VALUES (
     1, 1, 1
 );
+
+INSERT INTO app.pedidos VALUES (
+    2, 6, 3
+);
+
+INSERT INTO app.pedidos VALUES (
+    3, 7, 3
+);
+
+INSERT INTO app.pedidos VALUES (
+    4, 6, 2
+);
