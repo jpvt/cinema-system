@@ -1,14 +1,16 @@
 import streamlit as st
 import datetime
 import requests
-import json
 import math
-# from flask import Flask
-
-# app = Flask(__name__)
 
 ENDPOINT = 'http://localhost:8080/v1/graphql'
 headers = {'x-hasura-admin-secret': 'marceloVaiDar10'}
+
+st.set_page_config(
+     page_title='Cinema Sauro',
+     layout="wide",
+     initial_sidebar_state="collapsed",
+)
 
 def itemsStr(obj):
     r = ''
@@ -16,12 +18,6 @@ def itemsStr(obj):
         r += f'{item["descricao"]}: R${item["valor_item"]:.2f}\n'
         # r += f'**{item["descricao"]}**: R\${item["valor_item"]:.2f}\\\n'
     return r
-
-st.set_page_config(
-     page_title='Cinema Sauro',
-     layout="wide",
-     initial_sidebar_state="collapsed",
-)
 
 # TODO: checar double click dos botões
 # TODO: filtrar por dia ou fazer um sort de dia e horário
@@ -39,7 +35,7 @@ def getCart(carrinho):
     carrinho_str += f'{"-"*48}\n'
     carrinho_str += f"Total{'':<27}R${total:.2f}"
 
-    return carrinho_str
+    return carrinho_str, total
 
 def addToCart(item, carrinho):
     st.session_state.last_key = item["descricao"]
@@ -58,7 +54,7 @@ def undoCart(carrinho):
 def clearCart():
     st.session_state.carrinho = {}
 
-def show_seats(occupied, seats, columns = 16):
+def showSeats(occupied, seats, columns = 16):
     r = '\\  '
     rows = seats//columns
     for i in range(columns):
@@ -71,7 +67,8 @@ def show_seats(occupied, seats, columns = 16):
             r += '*' if f'{char}{j+1}' in occupied else 'O'
             r += ' '*(math.floor(math.log(j+1,10))+1)
         r += '\n'
-    r += '\n\t\tTELA'
+    r += '\n\t\tTELA\n\n'
+    r += 'O = Assento livre\n* = Assento ocupado'
     
     return r
 
@@ -88,6 +85,7 @@ def initialize_data():
         st.session_state.customer_data = {}
         st.session_state.carrinho = {}
         st.session_state.page = "compras"
+        st.session_state.movie_id = -1
 
 initialize_data()
 
@@ -102,7 +100,7 @@ match select_tela:
     case 'Loja':
         if st.session_state.page == "compras":
             nl = '\n'
-            body = {'query': 'query MyQuery { app_filmes {  sessoes {   data_sessao   dia_da_semana   tempo_inicio   valor_inteira   sala {    capacidade    id_sala   }  }  nome  id_filme  censura  categoria }}'}
+            body = {'query': 'query MyQuery { app_filmes {  sessoes {   id_sessao   data_sessao   dia_da_semana   tempo_inicio   valor_inteira   sala {    capacidade    id_sala   } ingressos { assento } }  nome  id_filme  censura  categoria }}'}
             movies = requests.post(ENDPOINT, json=body, headers=headers)
 
             body = {'query': 'query MyQuery { app_itens {  descricao  valor_item }}'}
@@ -116,23 +114,44 @@ match select_tela:
             if select_mode == 'Bilheteria':
                 col1.subheader("Filmes em cartaz")
                 for index, movie in enumerate(movies.json()['data']['app_filmes']):
-                    movie_info = f'{movie["nome"]}\n{"-"*64}\n'
-                    movie_info += f'Censura: {movie["censura"]}\n'
-                    movie_info += f'Gênero: {movie["categoria"]}\n'
-                    movie_info += 'Horários da sessão:\n\t'
-                    movie_info += '\n\t'.join([f"{session['dia_da_semana']}, dia {datetime.datetime.strptime(session['data_sessao'], '%Y-%m-%d'):%d/%m/%Y} às {session['tempo_inicio']}" for session in movie['sessoes']])
-                    movie_info += f'\nPreço inteira: R${movie["sessoes"][0]["valor_inteira"]:.2f}'
-                    col1.code(movie_info)
+                    if movie['sessoes'] and (st.session_state.movie_id == -1 or st.session_state.movie_id == movie['id_filme']):
+                        # and (st.session_state.movie_id == -1 or st.session_state.movie_id == movie['id_filme'])
+                        sessions = [f"{session['dia_da_semana']}, dia {datetime.datetime.strptime(session['data_sessao'], '%Y-%m-%d'):%d/%m/%Y} às {session['tempo_inicio']}" for session in movie['sessoes']]
 
-                    if col1.button('Comprar', key=f'c_{index}'):
-                        # print(movies.json()['data']['app_filmes'][index])
-                        # print('oi')
-                        col1.number_input('Quantidade', key=f'q_{index}', format="%d", step=1, min_value=0, max_value=5)
-                        col1.selectbox('Sessão', [f"{session['dia_da_semana']}, dia {datetime.datetime.strptime(session['data_sessao'], '%Y-%m-%d'):%d/%m/%Y} às {session['tempo_inicio']}" for session in movie['sessoes']], key=f's_{index}')
-                        pass
+                        movie_info = f'{movie["nome"]}\n{"-"*64}\n'
+                        movie_info += f'Censura: {movie["censura"]}\n'
+                        movie_info += f'Gênero: {movie["categoria"]}\n'
+                        movie_info += 'Horários da sessão:\n\t'
+                        movie_info += '\n\t'.join(sessions)
+                        movie_info += f'\nPreço inteira: R${movie["sessoes"][0]["valor_inteira"]:.2f}'
+                        col1.code(movie_info)
 
-            # col1.code(show_seats([ticket['assento'] for ticket in sessions.json()['data']['app_sessoes'][1]['ingressos']], sessions.json()['data']['app_sessoes'][1]['sala']['capacidade']))
-            # col1.code(json.dumps(sessions.json()['data']['app_sessoes'], indent=2))
+                        if st.session_state.movie_id != movie['id_filme'] and col1.button('Detalhes', key=f'c_{index}'):
+                            st.session_state.movie_id = movie['id_filme']
+
+                        if movie['id_filme'] == st.session_state.movie_id:
+                            if col1.button('Voltar', key=f'v_{index}'):
+                                st.session_state.movie_id = -1
+
+                            session = col1.selectbox('Sessão', sessions, key=f's_{index}')
+                            session_idx = sessions.index(session)
+                            qnt = col1.number_input('Quantidade', key=f'q_{index}', format="%d", step=1, min_value=0, max_value=5)
+
+                            if qnt:
+                                selected_tickets = []
+                                for i in range(qnt):
+                                    selected_tickets.append(col1.selectbox('Tipo de ingresso', key=f't_{i}_{index}', options=["adulto", "estudante", "infantil", "idoso", "flamenguista"]))
+                                    
+                                occupied = [ticket['assento'] for ticket in movie['sessoes'][session_idx]['ingressos']]
+                                capacity = movie['sessoes'][session_idx]['sala']['capacidade']
+                                col1.code(showSeats(occupied, capacity))
+
+                                if st.button("Adicionar ao carrinho"):
+                                    # checa se satisfaz a capacidade
+                                    for selected_ticket in selected_tickets:
+                                        addToCart({"descricao": f"{movie['nome']} - {datetime.datetime.strptime(session['data_sessao'], '%Y-%m-%d'):%d/%m/%Y} às {session['tempo_inicio']} - {selected_ticket}", "valor_item": movie["sessoes"][0]["valor_inteira"]}, st.session_state.carrinho)
+                                        pass
+
             elif select_mode == "Lanchonete":
                 col1.subheader('Lanchonete')
                 col1.code(itemsStr(items.json()['data']['app_itens']))
@@ -143,7 +162,7 @@ match select_tela:
                             addToCart(item, st.session_state.carrinho)
 
             col2.subheader('Carrinho')
-            col2.code(getCart(st.session_state.carrinho))
+            col2.code(getCart(st.session_state.carrinho)[0])
 
             if col2.button('Fazer checkout'):
                 st.session_state.page = "checkout"
@@ -160,23 +179,52 @@ match select_tela:
             if st.button('Voltar para compras'):
                 st.session_state.page = "compras"
             
-            with st.form("my_form"):
+            with st.form("form_checkout"):
                 col1, col2 = st.columns(2)
                 
                 nome = col1.text_input(label='Nome')
-                CPF = col1.text_input(label='CPF')
+                cpf = col1.text_input(label='CPF')
                 telefone = col1.text_input(label='Telefone')
                 forma_de_pagamento = col1.selectbox(label="Forma de pagamento", options=["crédito", "débito", "dinheiro", "pix"])
 
                 # Every form must have a submit button.
 
                 col2.subheader('Carrinho')
-                col2.code(getCart(st.session_state.carrinho))
+                
+                cart_str, cart_total = getCart(st.session_state.carrinho)
+                col2.code(cart_str)
 
                 submitted = col2.form_submit_button("Finalizar compra")
                 if submitted:
-                    print(nome, CPF, telefone)
-                    st.session_state.customer_data = {"nome": nome, "CPF": CPF, "telefone": telefone}
+                    # UPSERT CLIENTE
+                    print(nome, cpf, telefone)
+                    upsert_query = f'''mutation upsert_clientes {{
+                    insert_app_clientes_one(object: {{id_cliente: "{cpf}", nome: "{nome}", telefone: "{telefone}"}}, on_conflict: {{constraint: clientes_pkey, update_columns: [nome, telefone]}}) {{
+                        id_cliente
+                        nome
+                        telefone
+                    }}
+                    }}'''
+
+                    print(upsert_query)
+                    clientes = requests.post(ENDPOINT, json={'query': upsert_query}, headers=headers)
+                    print(clientes.json())
+
+                    # INSERT COMPRA
+                    insert_query = f'''mutation unnamedMutation3 {{
+                    insert_app_compras_one(object: {{id_cliente: "{cpf}", tipo_pagamento: "{forma_de_pagamento}", valor_total: {cart_total}}}) {{
+                        id_compra
+                        id_cliente
+                        tipo_pagamento
+                        valor_total
+                    }}
+                    }}'''
+
+                    print(insert_query)
+                    compras = requests.post(ENDPOINT, json={'query': insert_query}, headers=headers)
+                    print(compras.json())
+                    
+                    st.session_state.customer_data = {"nome": nome, "CPF": cpf, "telefone": telefone}
                     st.session_state.page = "thank_you"
 
         elif st.session_state.page == "thank_you":
@@ -215,8 +263,9 @@ match select_tela:
                         delete_query += 'id_filme'
                         delete_query += '}'
                         delete_query += '}'
-                        movies = requests.post(ENDPOINT, json=delete_query, headers=headers)
-                        print(delete_query)
+                        print('Query: ', delete_query)
+                        movies = requests.post(ENDPOINT, json={'query': delete_query}, headers=headers)
+                        print('Response: ', movies.json())
                         
 
                 col2.subheader('Cadastro de Filme')
@@ -227,22 +276,28 @@ match select_tela:
                 atores_principais = form.text_input(label='Atores Principais')
                 duracao = form.text_input(label='Duração')
                 produtora = form.text_input(label='Produtora')
-                nacional = form.selectbox(label="Nacional?", options=["True", "False"])
+                nacional = form.selectbox(label="Nacional?", options=["true", "false"])
                 descricao = form.text_input(label='Descrição')
 
                 submitted = form.form_submit_button("Finalizar Cadastro")
                 if submitted:
-                    new_movie = {
-                        'nome': nome,
-                        'categoria': categoria,
-                        'censura': censura,
-                        'atores_principais': atores_principais,
-                        'duracao': duracao,
-                        'produtora': produtora,
-                        'nacional': nacional,
-                        'descricao': descricao
-                    }
-                    print('Novo filme: ', new_movie)
+                    insert_query = f'''mutation unnamedMutation3 {{
+                    insert_app_filmes_one(object: {{nome: "{nome}", categoria: "{categoria}", censura: "{censura}", atores_principais: "{atores_principais}", duracao: "{duracao}", produtora: "{produtora}", nacional: {nacional}, descricao: "{descricao}"}}) {{
+                        nome
+                        produtora
+                        nacional
+                        id_filme
+                        duracao
+                        descricao
+                        censura
+                        categoria
+                        atores_principais
+                    }}
+                    }}'''
+
+                    print(insert_query)
+                    movies = requests.post(ENDPOINT, json={'query': insert_query}, headers=headers)
+                    print(movies.json())
 
             case 'Sessões':
                 col1, col2 = st.columns(2)
@@ -262,16 +317,10 @@ match select_tela:
                         #TODO Query to delete this session
                         print(f"Removendo {sessao['id_sessao']} - {sessao['filme']['nome']}")
                         table = 'delete_app_sessoes_by_pk'
-                        delete_query = 'mutation unnamedMutation3 {'
-                        delete_query += f'{table}('
-                        delete_query += f'id_sessao: {sessao["id_sessao"]}'
-                        delete_query += ')'
-                        delete_query += '{'
-                        delete_query += 'id_sessao'
-                        delete_query += '}'
-                        delete_query += '}'
-                        movies = requests.post(ENDPOINT, json=delete_query, headers=headers)
+                        delete_query = f'mutation unnamedMutation3 {{ {table}(id_sessao: {sessao["id_sessao"]}) {{ id_sessao}} }}'
                         print(delete_query)
+                        movies = requests.post(ENDPOINT, json={'query': delete_query}, headers=headers)
+                        print(movies.json())
 
                 col2.subheader('Cadastro de Sessão')
                 form = col2.form("form_cadastro_sessao", True)     
@@ -286,14 +335,32 @@ match select_tela:
 
                 submitted = form.form_submit_button("Finalizar Cadastro")
                 if submitted:
-                    new_session = {
-                        'id_sala': id_sala,
-                        'id_filme': id_filme,
-                        'total_vendido': total_vendido,
-                        'data_sessao': data_sessao,
-                        'dia_da_semana': dia_da_semana,
-                        'tempo_inicio': tempo_inicio,
-                        'tempo_final': tempo_final,
-                        'valor_inteira': valor_inteira
-                    }
-                    print('Nova Sessão: ', new_session)
+                    table = 'insert_app_sessoes'
+                    insert_query = 'mutation unnamedMutation3 {'
+                    insert_query += f'{table}('
+                    insert_query += 'objects: {'
+                    insert_query += f'id_sala: {id_sala},'
+                    insert_query += f'id_filme: {id_filme},'
+                    insert_query += f'total_vendido: {total_vendido},'
+                    insert_query += f'data_sessao: "{data_sessao}",'
+                    insert_query += f'dia_da_semana: "{dia_da_semana}",'
+                    insert_query += f'tempo_inicio: "{tempo_inicio}",'
+                    insert_query += f'tempo_final: "{tempo_final}",'
+                    insert_query += f'valor_inteira: {valor_inteira},'
+                    insert_query += '}'
+                    insert_query += ')'
+                    insert_query += '{'
+                    insert_query += 'returning {'
+                    insert_query += 'id_sala,'
+                    insert_query += 'id_filme,'
+                    insert_query += 'total_vendido,'
+                    insert_query += 'dia_da_semana,'
+                    insert_query += 'tempo_inicio,'
+                    insert_query += 'tempo_final,'
+                    insert_query += 'valor_inteira,'
+                    insert_query += '}'
+                    insert_query += '}'
+                    insert_query += '}'
+                    print(insert_query)
+                    movies = requests.post(ENDPOINT, json={'query': insert_query}, headers=headers)
+                    print(movies.json())

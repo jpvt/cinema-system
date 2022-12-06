@@ -21,7 +21,7 @@ CREATE TABLE app.sessoes (
     CONSTRAINT FK_sessoes_filmes FOREIGN KEY(id_filme)
         REFERENCES filmes(id_filme)
         ON DELETE CASCADE
-        ON UPDATE CASCADE,
+        ON UPDATE CASCADE
     
 );
 
