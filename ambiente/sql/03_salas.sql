@@ -7,8 +7,8 @@ CREATE TABLE app.salas (
     capacidade integer
 );
 
-INSERT INTO app.salas VALUES (1, 10);
-INSERT INTO app.salas VALUES (2, 20);
-INSERT INTO app.salas VALUES (3, 30);
-INSERT INTO app.salas VALUES (4, 40);
-INSERT INTO app.salas VALUES (5, 50);
+INSERT INTO app.salas VALUES (1, 64);
+INSERT INTO app.salas VALUES (2, 96);
+INSERT INTO app.salas VALUES (3, 128);
+INSERT INTO app.salas VALUES (4, 160);
+INSERT INTO app.salas VALUES (5, 192);
