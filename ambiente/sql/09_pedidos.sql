@@ -8,9 +8,14 @@ CREATE TABLE app.pedidos (
     id_compra serial,
 
     CONSTRAINT FK_pedidos_itens FOREIGN KEY(id_item)
-        REFERENCES itens(id_item),
+        REFERENCES itens(id_item)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
     CONSTRAINT FK_pedidos_compras FOREIGN KEY(id_compra)
         REFERENCES compras(id_compra)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 INSERT INTO app.pedidos VALUES (

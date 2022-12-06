@@ -14,10 +14,14 @@ CREATE TABLE app.sessoes (
     valor_inteira numeric,
 
     CONSTRAINT FK_sessoes_salas FOREIGN KEY(id_sala)
-        REFERENCES salas(id_sala),
+        REFERENCES salas(id_sala)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
 
     CONSTRAINT FK_sessoes_filmes FOREIGN KEY(id_filme)
         REFERENCES filmes(id_filme)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     
 );
 

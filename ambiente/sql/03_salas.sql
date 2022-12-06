@@ -3,7 +3,7 @@
 
 -- Cria tabela de filmes
 CREATE TABLE app.salas (
-    id_sala serial PRIMARY KEY,
+    id_sala serial PRIMARY KEY CHECK (id_sala < 46),
     capacidade integer
 );
 

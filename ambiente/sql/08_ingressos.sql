@@ -10,9 +10,14 @@ CREATE TABLE app.ingressos (
     tipo_ingresso text,
 
     CONSTRAINT FK_ingressos_compras FOREIGN KEY(id_compra)
-        REFERENCES compras(id_compra),
+        REFERENCES compras(id_compra)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
     CONSTRAINT FK_ingressos_sessoes FOREIGN KEY(id_sessao)
         REFERENCES sessoes(id_sessao)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 INSERT INTO app.ingressos VALUES (
