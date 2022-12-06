@@ -26,14 +26,14 @@ def getCart(carrinho):
     total = 0.0
 
     for key in carrinho.keys():
-        carrinho_str += f"{key:<32}R${carrinho[key]['valor_item']:.2f} (x{carrinho[key]['quantidade']})\n"
+        carrinho_str += f"{key:<85}R${carrinho[key]['valor_item']:.2f} (x{carrinho[key]['quantidade']})\n"
         total += carrinho[key]['valor_item'] * carrinho[key]['quantidade']
 
     if not carrinho.keys():
         carrinho_str += 'Seu carrinho está vazio!\n'
 
-    carrinho_str += f'{"-"*48}\n'
-    carrinho_str += f"Total{'':<27}R${total:.2f}"
+    carrinho_str += f'{"-"*96}\n'
+    carrinho_str += f"Total{'':<80}R${total:.2f}"
 
     return carrinho_str, total
 
@@ -140,17 +140,32 @@ match select_tela:
                             if qnt:
                                 selected_tickets = []
                                 for i in range(qnt):
-                                    selected_tickets.append(col1.selectbox('Tipo de ingresso', key=f't_{i}_{index}', options=["adulto", "estudante", "infantil", "idoso", "flamenguista"]))
+                                    selected_tickets.append(col1.selectbox(f'Tipo de ingresso - Ingresso {i+1}', key=f't_{i}_{index}', options=["Adulto", "Estudante", "Infantil", "Idoso", "Flamenguista"]))
                                     
                                 occupied = [ticket['assento'] for ticket in movie['sessoes'][session_idx]['ingressos']]
                                 capacity = movie['sessoes'][session_idx]['sala']['capacidade']
+
                                 col1.code(showSeats(occupied, capacity))
+                                # for i in range(qnt):
+
 
                                 if st.button("Adicionar ao carrinho"):
                                     # checa se satisfaz a capacidade
-                                    for selected_ticket in selected_tickets:
-                                        addToCart({"descricao": f"{movie['nome']} - {datetime.datetime.strptime(session['data_sessao'], '%Y-%m-%d'):%d/%m/%Y} às {session['tempo_inicio']} - {selected_ticket}", "valor_item": movie["sessoes"][0]["valor_inteira"]}, st.session_state.carrinho)
-                                        pass
+                                    for category in selected_tickets:
+                                        descricao = f"{movie['nome']} - {datetime.datetime.strptime(movie['sessoes'][session_idx]['data_sessao'], '%Y-%m-%d'):%d/%m/%Y} às {movie['sessoes'][session_idx]['tempo_inicio'][0:2]}h - {category}"
+                                        valor = movie["sessoes"][session_idx]["valor_inteira"]
+                                        match category: 
+                                            case "Flamenguista":
+                                                valor = 0.0
+                                            case "Adulto":
+                                                pass
+                                            case "Infantil":
+                                                valor *= 0.25
+                                            case _:
+                                                valor *= 0.5
+
+                                        addToCart({"descricao": f"{descricao}", "valor_item": valor}, st.session_state.carrinho)
+                                        st.session_state.movie_id = -1
 
             elif select_mode == "Lanchonete":
                 col1.subheader('Lanchonete')
