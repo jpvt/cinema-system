@@ -146,13 +146,17 @@ match select_tela:
                                 capacity = movie['sessoes'][session_idx]['sala']['capacidade']
 
                                 col1.code(showSeats(occupied, capacity))
-                                # for i in range(qnt):
 
+                                selected_seats = []
+                                columns = 16
+                                for i in range(qnt):
+                                    selected_seats.append(col1.selectbox(f'Assento - Ingresso {i+1}', key=f's_{i}_{index}', options=[f'{chr(ord("A")+i)}{j+1}' for i in range(capacity//columns) for j in range(columns) if f'{chr(ord("A")+i)}{j+1}' not in occupied]))
 
                                 if st.button("Adicionar ao carrinho"):
                                     # checa se satisfaz a capacidade
-                                    for category in selected_tickets:
-                                        descricao = f"{movie['nome']} - {datetime.datetime.strptime(movie['sessoes'][session_idx]['data_sessao'], '%Y-%m-%d'):%d/%m/%Y} às {movie['sessoes'][session_idx]['tempo_inicio'][0:2]}h - {category}"
+                                    for i, category in enumerate(selected_tickets):
+                                        print(selected_seats)
+                                        descricao = f"{movie['nome']} - {datetime.datetime.strptime(movie['sessoes'][session_idx]['data_sessao'], '%Y-%m-%d'):%d/%m/%Y} às {movie['sessoes'][session_idx]['tempo_inicio'][0:2]}h - {category} - {selected_seats[i]}"
                                         valor = movie["sessoes"][session_idx]["valor_inteira"]
                                         match category: 
                                             case "Flamenguista":
